@@ -1,6 +1,6 @@
 from flask import make_response
 from functools import wraps
-from headers import *
+from flask_secure_headers.headers import *
 
 class Secure_Headers:
 	def __init__(self):
@@ -67,7 +67,7 @@ class Secure_Headers:
 				c = globals()[k](v)
 				try:
 					policies[k] = c.update_policy(self.defaultPolicies[k])
-				except Exception, e:
+				except Exception:
 					raise
 
 		return [globals()[k](v).create_header()
@@ -85,7 +85,7 @@ class Secure_Headers:
 			c = globals()[k](v)
 			try:
 				self.defaultPolicies[k] = getattr(c,func)(self.defaultPolicies[k])
-			except Exception, e:
+			except Exception:
 				raise
 
 	def update(self, updateParams):

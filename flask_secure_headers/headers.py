@@ -53,7 +53,7 @@ class Simple_Header:
 				else:
 					_header_list.append('%s=%s' % (k,str(v)))
 			return {self.__class__.__name__.replace('_','-'):'; '.join(_header_list)}
-		except Exception, e:
+		except Exception:
 			raise
 
 class X_Frame_Options(Simple_Header):
@@ -134,7 +134,7 @@ class HPKP(Simple_Header):
 				else:
 					_header_list.append('%s=%s' % (k,str(v)))
 			return {self.__class__.__name__.replace('_','-'):'; '.join(_header_list)}
-		except Exception, e:
+		except Exception:
 			raise
 
 class CSP:
@@ -162,7 +162,7 @@ class CSP:
 				return cspDefaultHeaders
 			else:
 				return self.inputs
-		except Exception, e:
+		except Exception:
 			raise
 
 	def rewrite_policy(self,cspDefaultHeaders):
@@ -178,7 +178,7 @@ class CSP:
 				return cspDefaultHeaders
 			else:
 				return self.inputs
-		except Exception, e:
+		except Exception:
 			raise
 
 	def create_header(self):
