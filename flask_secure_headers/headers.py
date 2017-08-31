@@ -39,22 +39,19 @@ class Simple_Header:
 
     def create_header(self):
         """ return header dict """
-        try:
-            self.check_valid()
-            _header_list = []
-            for k,v in self.inputs.items():
-                if v is None:
-                    return  {self.__class__.__name__.replace('_','-'):None}
-                elif k == 'value':
-                    _header_list.insert(0,str(v))
-                elif isinstance(v,bool):
-                    if v is True:
-                        _header_list.append(k)
-                else:
-                    _header_list.append('%s=%s' % (k,str(v)))
-            return {self.__class__.__name__.replace('_','-'):'; '.join(_header_list)}
-        except Exception:
-            raise
+        self.check_valid()
+        _header_list = []
+        for k,v in self.inputs.items():
+            if v is None:
+                return  {self.__class__.__name__.replace('_','-'):None}
+            elif k == 'value':
+                _header_list.insert(0,str(v))
+            elif isinstance(v,bool):
+                if v is True:
+                    _header_list.append(k)
+            else:
+                _header_list.append('%s=%s' % (k,str(v)))
+        return {self.__class__.__name__.replace('_','-'):'; '.join(_header_list)}
 
 class X_Frame_Options(Simple_Header):
     """ X_Frame_Options """
@@ -119,23 +116,20 @@ class HPKP(Simple_Header):
 
     def create_header(self):
         """ rewrite return header dict for HPKP """
-        try:
-            self.check_valid()
-            _header_list = []
-            for k,v in self.inputs.items():
-                if v is None:
-                    return  {self.__class__.__name__.replace('_','-'):None}
-                elif k == 'value':
-                    _header_list.insert(0,str(v))
-                elif isinstance(v,bool):
-                    if v is True: _header_list.append(k)
-                elif type(v) is list:
-                    lambda v: len(v)>0, [_header_list.append(''.join(['pin-%s=%s' % (pink,pinv) for pink, pinv in pin.items()])) for pin in v]
-                else:
-                    _header_list.append('%s=%s' % (k,str(v)))
-            return {self.__class__.__name__.replace('_','-'):'; '.join(_header_list)}
-        except Exception:
-            raise
+        self.check_valid()
+        _header_list = []
+        for k,v in self.inputs.items():
+            if v is None:
+                return  {self.__class__.__name__.replace('_','-'):None}
+            elif k == 'value':
+                _header_list.insert(0,str(v))
+            elif isinstance(v,bool):
+                if v is True: _header_list.append(k)
+            elif type(v) is list:
+                lambda v: len(v)>0, [_header_list.append(''.join(['pin-%s=%s' % (pink,pinv) for pink, pinv in pin.items()])) for pin in v]
+            else:
+                _header_list.append('%s=%s' % (k,str(v)))
+        return {self.__class__.__name__.replace('_','-'):'; '.join(_header_list)}
 
 class CSP:
     def __init__(self, inputs):
@@ -154,32 +148,26 @@ class CSP:
 
     def update_policy(self,cspDefaultHeaders):
         """ add items to existing csp policies """
-        try:
-            self.check_valid(cspDefaultHeaders)
-            if self.inputs is not None:
-                for p,l in self.inputs.items():
-                    cspDefaultHeaders[p] = cspDefaultHeaders[p]+ list(set(self.inputs[p]) - set(cspDefaultHeaders[p]))
-                return cspDefaultHeaders
-            else:
-                return self.inputs
-        except Exception:
-            raise
+        self.check_valid(cspDefaultHeaders)
+        if self.inputs is not None:
+            for p,l in self.inputs.items():
+                cspDefaultHeaders[p] = cspDefaultHeaders[p]+ list(set(self.inputs[p]) - set(cspDefaultHeaders[p]))
+            return cspDefaultHeaders
+        else:
+            return self.inputs
 
     def rewrite_policy(self,cspDefaultHeaders):
         """ fresh csp policy """
-        try:
-            self.check_valid(cspDefaultHeaders)
-            if self.inputs is not None:
-                for p,l in cspDefaultHeaders.items():
-                    if p in self.inputs:
-                        cspDefaultHeaders[p] = self.inputs[p]
-                    else:
-                        cspDefaultHeaders[p] = []
-                return cspDefaultHeaders
-            else:
-                return self.inputs
-        except Exception:
-            raise
+        self.check_valid(cspDefaultHeaders)
+        if self.inputs is not None:
+            for p,l in cspDefaultHeaders.items():
+                if p in self.inputs:
+                    cspDefaultHeaders[p] = self.inputs[p]
+                else:
+                    cspDefaultHeaders[p] = []
+            return cspDefaultHeaders
+        else:
+            return self.inputs
 
     def create_header(self):
         """ return CSP header dict """

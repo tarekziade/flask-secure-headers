@@ -65,10 +65,7 @@ class Secure_Headers:
             for k,v in updateParams.items():
                 k = k.replace('-','_')
                 c = globals()[k](v)
-                try:
-                    policies[k] = c.update_policy(self.defaultPolicies[k])
-                except Exception:
-                    raise
+                policies[k] = c.update_policy(self.defaultPolicies[k])
 
         return [globals()[k](v).create_header()
                 for k,v in policies.items() if v is not None]
@@ -83,10 +80,7 @@ class Secure_Headers:
         for k,v in updateParams.items():
             k = k.replace('-','_')
             c = globals()[k](v)
-            try:
-                self.defaultPolicies[k] = getattr(c,func)(self.defaultPolicies[k])
-            except Exception:
-                raise
+            self.defaultPolicies[k] = getattr(c,func)(self.defaultPolicies[k])
 
     def update(self, updateParams):
         """ add changes to existing policy """
