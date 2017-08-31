@@ -2,15 +2,16 @@ import unittest
 from flask import Flask
 from flask_secure_headers.core import Secure_Headers
 from flask_secure_headers.headers import CSP
+from flask_secure_headers.tests.support import TestHeaders
 
 
-class TestCSPHeaderCreation(unittest.TestCase):
+class TestCSPHeaderCreation(TestHeaders):
     def test_CSP_pass(self):
         sh = Secure_Headers()
         defaultCSP = sh.defaultPolicies['CSP']
         """ test CSP policy update """
         h = CSP({'script-src':['self','code.jquery.com']}).update_policy(defaultCSP)
-        self.assertEquals(h['script-src'],['self', 'code.jquery.com'])
+        self.assertHeaderEquals(h['script-src'],['self', 'code.jquery.com'])
         self.assertEquals(h['default-src'],['self'])
         self.assertEquals(h['img-src'],[])
         """ test CSP policy rewrite """
@@ -30,7 +31,7 @@ class TestCSPHeaderCreation(unittest.TestCase):
         with self.assertRaises(Exception):
             h = CSP({'test-src':['self','code.jquery.com']}).update_policy()
 
-class TestAppUseCase(unittest.TestCase):
+class TestAppUseCase(TestHeaders):
     """ test header creation in flask app """
 
     def setUp(self):
@@ -51,7 +52,7 @@ class TestAppUseCase(unittest.TestCase):
             self.assertEquals(result.headers.get('X-Permitted-Cross-Domain-Policies'),'none')
             self.assertEquals(result.headers.get('X-Download-Options'),'noopen')
             self.assertEquals(result.headers.get('X-Frame-Options'),'sameorigin')
-            self.assertEquals(result.headers.get('Content-Security-Policy'),"report-uri /csp_report; default-src 'self'")
+            self.assertHeaderEquals(result.headers.get('Content-Security-Policy'),"report-uri /csp_report; default-src 'self'")
 
     def test_update_function(self):
         """ test config update function """
@@ -108,7 +109,7 @@ class TestAppUseCase(unittest.TestCase):
         with self.app.test_client() as c:
             result = c.get('/')
             self.assertEquals(result.headers.get('X-Permitted-Cross-Domain-Policies'),'none')
-            self.assertEquals(result.headers.get('Content-Security-Policy'),"script-src 'self' code.jquery.com; default-src 'none'")
+            self.assertHeaderEquals(result.headers.get('Content-Security-Policy'),"script-src 'self' code.jquery.com; default-src 'none'")
             self.assertEquals(result.headers.get('X-XSS-Protection'),'1')
             self.assertEquals(result.headers.get('Public-Key-Pins'),"pin-sha256=test2256; pin-sha256=test123")
         @self.app.route('/test')
@@ -116,7 +117,7 @@ class TestAppUseCase(unittest.TestCase):
         def test(): return "hi"
         with self.app.test_client() as c:
             result = c.get('/test')
-            self.assertEquals(result.headers.get('Content-Security-Policy'),"script-src 'self' code.jquery.com 'nonce-1234'; default-src 'none'")
+            self.assertHeaderEquals(result.headers.get('Content-Security-Policy'),"script-src 'self' code.jquery.com 'nonce-1234'; default-src 'none'")
 
     def test_passing_none_value_rewrite(self):
         """ test removing header from update/rewrite """

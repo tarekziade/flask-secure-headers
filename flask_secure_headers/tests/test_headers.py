@@ -1,9 +1,10 @@
 import unittest
 from flask import Flask
 from flask_secure_headers.headers import *
+from flask_secure_headers.tests.support import TestHeaders
 
 
-class TestPolicyCreation(unittest.TestCase):
+class TestPolicyCreation(TestHeaders):
     """ Test policy creation """
     def test_X_Frame_Options_pass(self):
         """ test valid X_Frame_Options"""
@@ -117,7 +118,8 @@ class TestPolicyCreation(unittest.TestCase):
         """ test valid HSTS (with second parameter)"""
         h = HSTS({'max-age':23,'includeSubDomains':True,'preload':False})
         r = h.create_header()
-        self.assertEquals(r['Strict-Transport-Security'],'includeSubDomains; max-age=23')
+        self.assertHeaderEquals(r['Strict-Transport-Security'],
+                                'includeSubDomains; max-age=23')
     def test_HSTS_fail_input(self):
         """ test invalid input for HSTS """
         h = HSTS({'values':23})
@@ -138,17 +140,17 @@ class TestPolicyCreation(unittest.TestCase):
         """ test valid HPKP """
         h = HPKP({'max-age':'23','includeSubDomains':True,'pins':[{'sha256':'1234'}]})
         r = h.create_header()
-        self.assertEquals(r['Public-Key-Pins'],'includeSubDomains; pin-sha256=1234; max-age=23')
+        self.assertHeaderEquals(r['Public-Key-Pins'],'includeSubDomains; pin-sha256=1234; max-age=23')
     def test_HPKP_pass_2_pins(self):
         """ test valid HPKP """
         h = HPKP({'max-age':'23','includeSubDomains':True,'pins':[{'sha256':'1234'},{'sha256':'abcd'}]})
         r = h.create_header()
-        self.assertEquals(r['Public-Key-Pins'],'includeSubDomains; pin-sha256=1234; pin-sha256=abcd; max-age=23')
+        self.assertHeaderEquals(r['Public-Key-Pins'],'includeSubDomains; pin-sha256=1234; pin-sha256=abcd; max-age=23')
     def test_HPKP_pass_no_pins(self):
         """ test valid HPKP (with no pins) """
         h = HPKP({'max-age':'23','includeSubDomains':True})
         r = h.create_header()
-        self.assertEquals(r['Public-Key-Pins'],'includeSubDomains; max-age=23')
+        self.assertHeaderEquals(r['Public-Key-Pins'],'includeSubDomains; max-age=23')
     def test_HPKP_pass_no_include_subdomains(self):
         """ test valid HPKP (with no pins) """
         h = HPKP({'max-age':'23','includeSubDomains':False})
@@ -158,7 +160,7 @@ class TestPolicyCreation(unittest.TestCase):
         """ test valid HPKP for Report-Only header """
         h = HPKP({'max-age':'23','includeSubDomains':True,'pins':[{'sha256':'1234'}],'report-only':True})
         r = h.create_header()
-        self.assertEquals(r['Public-Key-Pins-Report-Only'],'includeSubDomains; pin-sha256=1234; max-age=23')
+        self.assertHeaderEquals(r['Public-Key-Pins-Report-Only'],'includeSubDomains; pin-sha256=1234; max-age=23')
     def test_HPHP_fail_nonList(self):
         """ test invalid pins argument for HPKP (not passing list for pins argument) """
         h = HPKP({'pins':'test'})
